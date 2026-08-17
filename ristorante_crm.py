@@ -5,8 +5,12 @@ Consente di gestire il menù, i tavoli, gli ordini e i pagamenti.
 
 """Richiede il modulo datetime per gestire le date e gli orari degli ordini."""
 from datetime import datetime
-"""Definisco le strutture dati per il menù, i tavoli e lo storico dei pagamenti."""
-menu_piatti = []
+"""Richiede il modulo database per gestire il caricamento e l'inizializzazione del database dei piatti."""
+import database_ristorante
+
+database_ristorante.inizializza_database()
+
+menu_piatti = database_ristorante.carica_piatti()
 tavoli = []
 storico_pagamenti = []
 
@@ -46,7 +50,8 @@ def aggiungi_piatto():
     except ValueError:
         print("Prezzo non valido. Assicurati di inserire un numero. Riprova. 🚫")
         return
-    nuovo_piatto = {"nome": nome, "prezzo": prezzo}
+    nuovo_id = database_ristorante.salva_piatto(nome, prezzo)
+    nuovo_piatto = {"id": nuovo_id, "nome": nome, "prezzo": prezzo}
     menu_piatti.append(nuovo_piatto)
     print(f"Piatto '{nome}' aggiunto al menù con successo. ✅")
 
@@ -65,6 +70,7 @@ def rimuovi_piatto():
         return
     if 0 <= indice < len(menu_piatti):
         piatto_rimosso = menu_piatti.pop(indice)
+        database_ristorante.elimina_piatto(piatto_rimosso["id"])
         print(f"Piatto '{piatto_rimosso['nome']}' rimosso dal menù con successo. ✅")
     else:
         print("Scelta non valida. Riprova. 🚫")
