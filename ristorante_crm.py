@@ -6,13 +6,13 @@ Consente di gestire il menù, i tavoli, gli ordini e i pagamenti.
 """Richiede il modulo datetime per gestire le date e gli orari degli ordini."""
 from datetime import datetime
 """Richiede il modulo database per gestire il caricamento e l'inizializzazione del database dei piatti."""
-import database_ristorante
+import database_ristorante as database
 
-database_ristorante.inizializza_database()
+database.inizializza_database()
 
-menu_piatti = database_ristorante.carica_piatti()
-tavoli = []
-storico_pagamenti = []
+menu_piatti = database.carica_piatti()
+tavoli = database.carica_tavoli()
+storico_pagamenti = database.carica_storico()
 
 """Definisco le funzioni principali per la gestione del CRM del ristorante, tra cui la visualizzazione del menù, la gestione dei tavoli, la creazione di nuovi ordini, il pagamento e la visualizzazione dello storico degli ordini."""
 def mostra_menu():
@@ -20,11 +20,11 @@ def mostra_menu():
     print("Benvenuto nel CRM del ristorante! 🍽️")
     print("=" * 40)
     print("0. Esci ❌")
-    print("1. Gestione Menù")
-    print("2. Gestione Tavoli")
-    print("3. Nuovo Ordine")
-    print("4. Pagamento")
-    print("5. Storico Ordini")
+    print("1. Gestione Menù 🍽️")
+    print("2. Gestione Tavoli 🪑")
+    print("3. Nuovo Ordine 📝")
+    print("4. Pagamento 💳")
+    print("5. Storico Ordini 📜")
     print("=" * 40)
 
 """Definisco la funzione per visualizzare i piatti del menù, aggiungere nuovi piatti e rimuovere piatti esistenti."""
@@ -50,7 +50,7 @@ def aggiungi_piatto():
     except ValueError:
         print("Prezzo non valido. Assicurati di inserire un numero. Riprova. 🚫")
         return
-    nuovo_id = database_ristorante.salva_piatto(nome, prezzo)
+    nuovo_id = database.salva_piatto(nome, prezzo)
     nuovo_piatto = {"id": nuovo_id, "nome": nome, "prezzo": prezzo}
     menu_piatti.append(nuovo_piatto)
     print(f"Piatto '{nome}' aggiunto al menù con successo. ✅")
@@ -70,7 +70,7 @@ def rimuovi_piatto():
         return
     if 0 <= indice < len(menu_piatti):
         piatto_rimosso = menu_piatti.pop(indice)
-        database_ristorante.elimina_piatto(piatto_rimosso["id"])
+        database.elimina_piatto(piatto_rimosso["id"])
         print(f"Piatto '{piatto_rimosso['nome']}' rimosso dal menù con successo. ✅")
     else:
         print("Scelta non valida. Riprova. 🚫")
@@ -115,6 +115,7 @@ def imposta_numero_tavoli():
     """Ciclo per creare i tavoli, assegnando a ciascun tavolo un numero identificativo e una lista vuota di ordini."""
     for i in range(1, numero_tavoli + 1):
         tavoli.append({"numero": i, "ordini": []})
+    database.salva_numero_tavoli(numero_tavoli)
     print(f"{numero_tavoli} tavoli creati con successo. ✅")
 
 """Funzione per visualizzare lo stato dei tavoli nel ristorante. Inoltra, mostra gli ordini associati a ciascun tavolo e il totale parziale degli ordini."""
@@ -131,10 +132,9 @@ def visualizza_tavoli():
         if not tavolo["ordini"]:
             print("  Nessun ordine.")
             continue
-        totale = 0
+        totale = calcola_totale_tavolo(tavolo)
         for piatto in tavolo["ordini"]:
             print(f"  - {piatto['nome']} ({piatto['prezzo']}€)")
-            totale += piatto["prezzo"]
         print(f"  Totale parziale: {totale}€")
 """Funzione per consentire all'utente di scegliere un tavolo esistente, restituendo il dizionario del tavolo selezionato o None se l'utente annulla la scelta o inserisce un numero non valido."""
 def scegli_tavolo():
@@ -173,7 +173,9 @@ def assegna_piatto_a_tavolo():
         return
     if 0 <= indice < len(menu_piatti):
         piatto_scelto = menu_piatti[indice]
-        tavolo["ordini"].append(piatto_scelto)
+        id_ordine = database.salva_ordine_tavolo(tavolo["numero"], piatto_scelto["nome"], piatto_scelto["prezzo"])
+        piatto_ordinato = {"id_ordine": id_ordine, "nome": piatto_scelto["nome"], "prezzo": piatto_scelto["prezzo"]}
+        tavolo["ordini"].append(piatto_ordinato)
         print(f"Piatto '{piatto_scelto['nome']}' assegnato al Tavolo {tavolo['numero']} con successo. ✅")
     else:
         print("Scelta non valida. Riprova. 🚫")
@@ -203,6 +205,7 @@ def rimuovi_piatto_da_tavolo():
         return
     if 0 <= indice < len(tavolo["ordini"]):
         piatto_rimosso = tavolo["ordini"].pop(indice)
+        database.elimina_ordine_tavolo(piatto_rimosso["id_ordine"])
         print(f"Piatto '{piatto_rimosso['nome']}' rimosso dall'ordine del Tavolo {tavolo['numero']} con successo. ✅")
     else:
         print("Scelta non valida. Riprova. 🚫")
@@ -258,7 +261,9 @@ def nuovo_ordine():
             continue
         if 0 <= indice < len(menu_piatti):
             piatto_scelto = menu_piatti[indice]
-            tavolo["ordini"].append(piatto_scelto)
+            id_ordine = database.salva_ordine_tavolo(tavolo["numero"], piatto_scelto["nome"], piatto_scelto["prezzo"])
+            piatto_ordinato = {"id_ordine": id_ordine, "nome": piatto_scelto["nome"], "prezzo": piatto_scelto["prezzo"]}
+            tavolo["ordini"].append(piatto_ordinato)
             piatti_aggiunti += 1
             print(f"Piatto '{piatto_scelto['nome']}' aggiunto all'ordine del Tavolo {tavolo['numero']}. ✅")
         else:
@@ -307,7 +312,7 @@ def pagamento():
     elif metodo == "1":
         metodo_display = "Contanti"
         importo_testo = input(f"Importo consegnato dal cliente (minimo {totale:.2f}€): ").strip()
-        importo_testo = importo_testo.replace(",", ".")  # accetta anche "7,50" oltre a "7.50"
+        importo_testo = importo_testo.replace(",", ".")
         try:
             importo = float(importo_testo)
         except ValueError:
@@ -326,14 +331,18 @@ def pagamento():
     else:
         print("Metodo di pagamento non valido. Pagamento annullato. 🚫")
         return
+
+    data_ora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    database.salva_pagamento(tavolo["numero"], tavolo["ordini"], totale, metodo_display, data_ora)
     storico_pagamenti.append({
         "tavolo": tavolo["numero"],
         "piatti": tavolo["ordini"].copy(),
         "totale": totale,
         "metodo": metodo_display,
-        "data_ora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "data_ora": data_ora,
     })
 
+    database.svuota_ordini_tavolo(tavolo["numero"])
     tavolo["ordini"].clear()
     print(f"Il Tavolo {tavolo['numero']} è ora libero. ✅")
         

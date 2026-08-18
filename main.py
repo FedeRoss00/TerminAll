@@ -3,6 +3,7 @@ Main file per il programma CRM. Consente all'utente di scegliere tra diverse cat
 """
 import ristorante_crm
 import negozio_crm
+import sport_crm
 
 def categorie():
     """Definisco le categorie di CRM disponibili e le stampo a video."""
@@ -12,6 +13,7 @@ def categorie():
     print("0. Esci ❌")
     print("1. Ristorante 🍽️")
     print("2. Negozio 🏪")
+    print("3. Consulenza Sportiva 🏋️‍♂️")
     print("=" * 20)
 
 def main():
@@ -27,6 +29,8 @@ def main():
             ristorante_crm.main()
         elif scelta == "2":
             negozio_crm.main()
+        elif scelta == "3":
+            sport_crm.main()
         else:
             print("Scelta non valida. Riprova. 🚫")
 
