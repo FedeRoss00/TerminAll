@@ -3,7 +3,6 @@ Main file per il programma CRM. Consente all'utente di scegliere tra diverse cat
 """
 import ristorante_crm
 import negozio_crm
-import sport_crm
 
 def categorie():
     """Definisco le categorie di CRM disponibili e le stampo a video."""
