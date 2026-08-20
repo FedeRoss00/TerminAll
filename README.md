@@ -1,6 +1,8 @@
-# CRM Multi-Settore da Terminale
+# CRM Multi-Settore
 
-Un CRM leggero e portabile, scritto in Python, pensato per essere eseguito da terminale su qualsiasi sistema operativo (Windows, macOS, Linux). L'idea di fondo è avere un'unica base di codice adattabile a diversi tipi di attività — ristoranti, negozi, aziende di qualsiasi settore — sviluppando via via i moduli specifici per ciascun ambito a partire da un nucleo comune.
+L'idea è quella di sviluppare un CRM utilizzando Python e poche altre librerie e strumenti. 
+Il vantaggio di un sistema simile è quello di poter interagire con tale CRM con estrema leggerezza. Potendolo utilizzare sia da terminale che da piattaforma web. In secondo luogo altro vantaggio è quello di essere facilmente installabile ed eseguibile su qualsiasi dispositivo. Praticamente qualsiasi macchina ha la possibilità di installare Python, in ogni caso a progetto ultimato sarà possibile eseguire un file exe per l'installazione del codice e di tutte le librerie associate.
+Il progetto di baserà su un CRM che permetterà all'utente di decidere diverse tipologie di aziende o società (ristorante, consulenza ecc..), ma avrà anche a disposizione un sistema vuoto che lascerà massima libertà all'utente di creare moduli personalizzati.
 
 ## Obiettivi del progetto
 
@@ -12,21 +14,3 @@ Un CRM leggero e portabile, scritto in Python, pensato per essere eseguito da te
 ## Requisiti
 
 - Python 3.8 o superiore
-- Nessuna libreria esterna richiesta (solo libreria standard), salvo diversa indicazione futura
-
-## Come si esegue
-
-Ogni modulo del CRM è uno script Python autonomo, eseguibile con:
-
-```bash
-python nome_modulo.py
-```
-
-Su Windows, se il comando `python` non è riconosciuto, usa `py nome_modulo.py`.
-
-## Roadmap
-
-- [ ] Persistenza dei dati (salvataggio su file o database)
-- [ ] Espansione a più settori di attività
-- [ ] Architettura client-server per l'utilizzo da più dispositivi contemporaneamente
-- [ ] File di installazione/eseguibile standalone per ogni sistema operativo
